@@ -200,8 +200,6 @@ class Main:
             loss = common.torch.cross_entropy_divergence
         elif self.args.loss == 'bc':
             loss = common.torch.bhattacharyya_divergence
-        # TODO add KL
-        # TODO start KL and BC new variant
 
         objective = attacks.objectives.UntargetedF7PObjective()
 
