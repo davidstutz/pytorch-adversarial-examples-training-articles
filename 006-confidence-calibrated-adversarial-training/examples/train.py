@@ -128,8 +128,6 @@ class Main:
         parser.add_argument('--directory', type=str, default='./checkpoints/')
         parser.add_argument('--no_auto_augment', action='store_false', dest='auto_augment', default=True, help='disable AutoAugment')
         parser.add_argument('--no_cuda', action='store_false', dest='cuda', default=True, help='do not use cuda')
-        parser.add_argument('--variant', action='store_true', dest='variant', default=False, help='use variant, i.e., "ccat2"')
-        parser.add_argument('--beta', type=float, default=1, help='adversarial weight for ccat2')
 
         return parser
 
@@ -165,8 +163,6 @@ class Main:
         print('epsilon: %g' % self.args.epsilon)
         print('iterations: %d' % self.args.iterations)
         print('auto augment: %r' % self.args.auto_augment)
-        if self.args.variant:
-            print('beta: %g' % self.args.beta)
         print('normalization: %s' % self.args.normalization)
 
         epsilon = self.args.epsilon
@@ -287,17 +283,10 @@ class Main:
             self.scheduler.load_state_dict(state.scheduler)
             log('loaded scheduler')
 
-        if self.args.variant:
-            fraction = 1
-            trainer = common.train.ConfidenceCalibratedAdversarialTraining2(
-                self.model, self.trainloader, self.testloader, self.optimizer, self.scheduler,
-                attack, objective, loss=loss, transition=transition, fraction=fraction, beta=self.args.beta,
-                writer=writer, cuda=self.args.cuda)
-        else:
-            fraction = 0.5
-            trainer = common.train.ConfidenceCalibratedAdversarialTraining(
-                self.model, self.trainloader, self.testloader, self.optimizer, self.scheduler,
-                attack, objective, loss=loss, transition=transition, fraction=fraction, writer=writer, cuda=self.args.cuda)
+        fraction = 0.5
+        trainer = common.train.ConfidenceCalibratedAdversarialTraining(
+            self.model, self.trainloader, self.testloader, self.optimizer, self.scheduler,
+            attack, objective, loss=loss, transition=transition, fraction=fraction, writer=writer, cuda=self.args.cuda)
 
         for epoch in range(start_epoch, self.epochs):
             trainer.step(epoch)
