@@ -75,7 +75,7 @@ class BatchPatches(Attack):
             current_iteration += 1
 
             # Apply patch
-            imgs_patched = images + masks*patches
+            imgs_patched = (1 - masks)*images + masks*patches
 
             # Get predictions on patched images
             preds = model(imgs_patched)
